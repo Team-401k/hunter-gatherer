@@ -7,8 +7,6 @@ load_dotenv()
 class SquareSpaceAPI(BaseApi):
     def __init__(self):
         api_key = os.getenv('SQUARESPACE_API_KEY')
-        print("API KEY IS", api_key)
-        # api_key = "fd12f7c1-ccd1-489d-adc5-164687c4791b"
         super().__init__('https://api.squarespace.com') 
         self.api_key = api_key
 

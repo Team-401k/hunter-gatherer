@@ -1,5 +1,9 @@
 from app.api.v1.external_apis.base_api import BaseApi
+from dotenv import load_dotenv
 import os
+import json
+
+load_dotenv() # load the .env
 
 class SquareSpaceAPI(BaseApi):
     def __init__(self):
@@ -32,5 +36,62 @@ class SquareSpaceAPI(BaseApi):
         return response
     
 squareSpaceAPI = SquareSpaceAPI()
-orders = squareSpaceAPI.get_orders(modifiedAfter='2024-12-10T00:00:00Z', modifiedBefore='2024-02-17T23:59:59Z')
-print(orders)   
+
+# Define the order class
+class Order:
+    def __init__(self, id, order_number, created_on, modified_on, customer_email, billing_address, line_items, total):
+        self.id = id
+        self.order_number = order_number
+        self.created_on = created_on
+        self.modified_on = modified_on
+        self.customer_email = customer_email
+        self.billing_address = billing_address
+        self.line_items = line_items
+        self.total = total
+
+    def __str__(self):
+        return f"Order Number: {self.order_number}, Email: {self.customer_email}, Total: {self.total['value']} {self.total['currency']}"
+
+def create_order_instances(api_data):
+    orders = []
+    for order_data in api_data.get('result', []):
+        # Create a dictionary with the data for the new Order
+        new_order_data = {
+            'member_id': None,  # You need to determine the member_id based on your application logic
+            'amount': float(order_data['grandTotal']['value']),
+            'date': current_utc_time(),
+            'type': 'forum',  # You need to determine the type based on your application logic
+            'method': 'stripe',  # Assume 'stripe' for this example, adjust as needed
+            'fee': 0.0,  # Set a default fee or calculate as required
+            'stripe_paypal_id': None  # You need to extract this from your payment gateway data
+        }
+
+        # Append a new Order instance to the list
+        orders.append(Order(**new_order_data))
+    return orders
+
+# API call returns a dictionary
+data = squareSpaceAPI.get_orders(modifiedAfter='2024-02-10T00:00:00Z', modifiedBefore='2024-02-17T23:59:59Z')
+
+# Data is a dictionary returned from the api call
+orders_data = data.get('result', [])
+orders = []
+
+for order_data in orders_data:
+    # Extract the necessary information from each order
+    id = order_data.get('id')
+    order_number = order_data.get('orderNumber')
+    created_on = order_data.get('createdOn')
+    modified_on = order_data.get('modifiedOn')
+    customer_email = order_data.get('customerEmail')
+    billing_address = order_data.get('billingAddress')
+    line_items = order_data.get('lineItems')
+    total = order_data.get('grandTotal')
+
+    # Create an Order instance
+    order = Order(id, order_number, created_on, modified_on, customer_email, billing_address, line_items, total)
+    orders.append(order)
+
+# Print out each order's information
+for order in orders:
+    print(order)

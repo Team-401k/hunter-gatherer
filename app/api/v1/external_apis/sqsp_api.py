@@ -2,6 +2,7 @@ from app.api.v1.external_apis.base_api import BaseApi
 from dotenv import load_dotenv
 import os
 import json
+from app.api.v1.orders.schemas import *
 
 load_dotenv() # load the .env
 
@@ -71,27 +72,22 @@ def create_order_instances(api_data):
     return orders
 
 # API call returns a dictionary
-data = squareSpaceAPI.get_orders(modifiedAfter='2024-02-10T00:00:00Z', modifiedBefore='2024-02-17T23:59:59Z')
+data = squareSpaceAPI.get_orders(modifiedAfter='2024-02-16T00:00:00Z', modifiedBefore='2024-02-17T23:59:59Z')
 
-# Data is a dictionary returned from the api call
-orders_data = data.get('result', [])
-orders = []
+# Pydantic OrderWrapper to unwrap API call into 
 
-for order_data in orders_data:
-    # Extract the necessary information from each order
-    id = order_data.get('id')
-    order_number = order_data.get('orderNumber')
-    created_on = order_data.get('createdOn')
-    modified_on = order_data.get('modifiedOn')
-    customer_email = order_data.get('customerEmail')
-    billing_address = order_data.get('billingAddress')
-    line_items = order_data.get('lineItems')
-    total = order_data.get('grandTotal')
-
-    # Create an Order instance
-    order = Order(id, order_number, created_on, modified_on, customer_email, billing_address, line_items, total)
-    orders.append(order)
-
-# Print out each order's information
-for order in orders:
+order_wrapper = OrderWrapper.model_validate(data)
+for order in order_wrapper.result:
+    created_on_str = order.createdOn.strftime('%Y-%m-%d %H:%M:%S') if order.createdOn else None
+    modified_on_str = order.modifiedOn.strftime('%Y-%m-%d %H:%M:%S') if order.modifiedOn else None
     print(order)
+    order = Order(
+        id=order.id,
+        orderNumber=order.orderNumber,
+        total=order.grandTotal.value,
+        createdOn=created_on_str,
+        modifiedOn=modified_on_str,
+        customerEmail=order.customerEmail,
+        billingAddress=f"{order.billingAddress.address1}, {order.billingAddress.address2}" if order.billingAddress.address2 else order.billingAddress.address1
+    )
+    print("Order is ", order)

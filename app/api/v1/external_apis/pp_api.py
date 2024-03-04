@@ -50,8 +50,8 @@ class PayPalAPI(BaseApi):
 
 
 # Example call
-client_id = os.getenv("PayPal_CLIENT_ID")
-secret_key = os.getenv("PayPal_SECRET_KEY")
+client_id = os.getenv("PAYPAL_CLIENT_ID")
+secret_key = os.getenv("PAYPAL_SECRET_KEY")
 paypal_api = PayPalAPI(client_id, secret_key)
 transactions = paypal_api.search_transactions('2023-10-01T00:00:00-0700', '2023-10-31T00:00:00-0700')
 donations = paypal_api.get_donations('2023-12-01T00:00:00-0700', '2023-12-30T00:00:00-0700')

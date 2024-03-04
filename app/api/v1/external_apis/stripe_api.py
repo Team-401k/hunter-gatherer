@@ -1,5 +1,7 @@
 from app.api.v1.external_apis.base_api import BaseApi
 from dotenv import load_dotenv
+from app.api.v1.users.schemas import PaymentResponse
+
 import os                                                                                                                                                                                                          
 
 
@@ -32,12 +34,14 @@ class StripeAPI(BaseApi):
 
             # Iterate through the charges and do something with them
             for charge in charges.auto_paging_iter():
-                # print(charge)
-                print(f"Name: {charge['billing_details']['name']}, "
-                    f"Amount: {charge['amount']}, "
-                    f"Currency: {charge['currency']}, "
-                    f"Date: {datetime.utcfromtimestamp(charge['created']).strftime('%Y-%m-%d %H:%M:%S')}, "
-                    f"Application Fee: {charge.get('application_fee', 'N/A')}")
+                response_object = PaymentResponse.parse_obj(charge)
+                print(response_object.amount)
+                #print(charge)
+                # print(f"Name: {charge['billing_details']['name']}, "
+                #     f"Amount: {charge['amount']}, "
+                #     f"Currency: {charge['currency']}, "
+                #     f"Date: {datetime.utcfromtimestamp(charge['created']).strftime('%Y-%m-%d %H:%M:%S')}, "
+                #     f"Application Fee: {charge.get('application_fee', 'N/A')}")
         except stripe.error.StripeError as e:
             # Handle error
             print(e)
@@ -65,13 +69,13 @@ class StripeAPI(BaseApi):
 stripe_api = StripeAPI()
 stripe_api.search_transactions(1707602577, 1708207377)
 
-donations = stripe_api.get_donations(1672614308, 1704063908)
+# donations = stripe_api.get_donations(1672614308, 1704063908)
 
-if donations:
-    for donation in donations:
-        print(f"Donation Transaction ID: {donation['id']}")
-        print(f"Amount: {donation['amount'] / 100} {donation['currency']}")
-        print(f"Description: {donation['description']}")
-        print("-------------")
-else:
-    print("No donations found.")
+# if donations:
+#     for donation in donations:
+#         print(f"Donation Transaction ID: {donation['id']}")
+#         print(f"Amount: {donation['amount'] / 100} {donation['currency']}")
+#         print(f"Description: {donation['description']}")
+#         print("-------------")
+# else:
+#     print("No donations found.")

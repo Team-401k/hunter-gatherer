@@ -1,7 +1,11 @@
+from dotenv import load_dotenv
+
 from app.api.v1.external_apis.base_api import BaseApi
 import os
 
+load_dotenv()
 class SquareSpaceAPI(BaseApi):
+
     def __init__(self):
         api_key = os.getenv('SQUARESPACE_API_KEY')
         super().__init__('https://api.squarespace.com') 
@@ -32,5 +36,5 @@ class SquareSpaceAPI(BaseApi):
         return response
     
 squareSpaceAPI = SquareSpaceAPI()
-orders = squareSpaceAPI.get_orders(modifiedAfter='2024-12-10T00:00:00Z', modifiedBefore='2024-02-17T23:59:59Z')
+orders = squareSpaceAPI.get_orders(modifiedAfter='2023-12-10T00:00:00Z', modifiedBefore='2024-02-17T23:59:59Z')
 print(orders)   

@@ -3,6 +3,39 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from app.api.v1.router import router as v1_router
+from typing import Tuple
+from sqlalchemy import Table
+from app.database import engine, meta
+
+def load_past_tables() -> Tuple[Table]:
+    enrollment_24a = Table(
+        'Enrollment-24a', meta, autoload_with=engine
+    )
+
+    enrollment_24b = Table(
+        'Enrollment-24b', meta, autoload_with=engine
+    )
+
+    enrollment_template = Table(
+        'Enrollment-TEMPLATE-2022', meta, autoload_with=engine
+    )
+
+    prototype_membership_db = Table(
+        'Prototype-MembershipDB', meta, autoload_with=engine
+    )
+
+    prototype_membership_db_volunteerism = Table(
+        'Prototype-MembershipDB-Volunteerism', meta, autoload_with=engine
+    )
+    
+    test = Table(
+        'Test', meta, autoload_with=engine
+    )
+
+    test_k = Table(
+        'Test.k', meta, autoload_with=engine
+    )
+
 
 def load_all_models() -> None:
     """Load all models from `app.api.v1`.
@@ -21,6 +54,9 @@ def load_all_models() -> None:
     for path in model_paths:
         module_name = path_to_import(str(path))
         __import__(module_name)
+
+    load_past_tables()
+        
 
 
 def get_app() -> FastAPI:

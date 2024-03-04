@@ -1,4 +1,4 @@
-from base_api import BaseApi
+from app.api.v1.external_apis.base_api import BaseApi
 from dotenv import load_dotenv
 import os                                                                                                                                                                                                          
 

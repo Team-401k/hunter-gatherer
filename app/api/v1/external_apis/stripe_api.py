@@ -8,7 +8,7 @@ import stripe
 from datetime import datetime
 
 load_dotenv()
-stripe.api_key = os.getenv("Stripe_SECRET_KEY")
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 
 class StripeAPI(BaseApi):

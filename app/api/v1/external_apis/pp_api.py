@@ -1,7 +1,7 @@
 from app.api.v1.external_apis.base_api import BaseApi
 from dotenv import load_dotenv
 import os
-
+from  app.api.v1.users.schemas import TransactionAmount, TransactionInfo
 import requests
 
 load_dotenv()
@@ -53,7 +53,16 @@ class PayPalAPI(BaseApi):
 client_id = os.getenv("PayPal_CLIENT_ID")
 secret_key = os.getenv("PayPal_SECRET_KEY")
 paypal_api = PayPalAPI(client_id, secret_key)
-transactions = paypal_api.search_transactions('2023-10-01T00:00:00-0700', '2023-10-31T00:00:00-0700')
-donations = paypal_api.get_donations('2023-12-01T00:00:00-0700', '2023-12-30T00:00:00-0700')
-print(donations)
-print(transactions['transaction_details'])
+transactions = paypal_api.search_transactions('2023-10-01T00:00:00-0700', '2023-11-01T00:00:00-0700')
+# donations = paypal_api.get_donations('2023-12-01T00:00:00-0700', '2023-12-30T00:00:00-0700')
+# print(donations)
+#print(transactions['transaction_details'])
+
+transaction_details = transactions['transaction_details']
+
+# Parse each transaction detail into a TransactionInfo object
+parsed_transactions = [TransactionInfo(**detail['transaction_info']) for detail in transaction_details]
+
+# Example usage: print out transaction IDs
+for transaction in parsed_transactions:
+    print(transaction.transaction_id)

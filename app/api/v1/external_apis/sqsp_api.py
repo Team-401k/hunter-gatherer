@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+
 from app.api.v1.external_apis.base_api import BaseApi
 from dotenv import load_dotenv
 import os
@@ -6,7 +8,9 @@ from app.api.v1.orders.schemas import *
 
 load_dotenv() # load the .env
 
+load_dotenv()
 class SquareSpaceAPI(BaseApi):
+
     def __init__(self):
         api_key = os.getenv('SQUARESPACE_API_KEY')
         super().__init__('https://api.squarespace.com') 
@@ -37,6 +41,7 @@ class SquareSpaceAPI(BaseApi):
         return response
     
 squareSpaceAPI = SquareSpaceAPI()
+
 
 # Define the order class
 class Order:
@@ -91,3 +96,6 @@ for order in order_wrapper.result:
         billingAddress=f"{order.billingAddress.address1}, {order.billingAddress.address2}" if order.billingAddress.address2 else order.billingAddress.address1
     )
     print("Order is ", order)
+=======
+orders = squareSpaceAPI.get_orders(modifiedAfter='2023-12-10T00:00:00Z', modifiedBefore='2024-02-17T23:59:59Z')
+print(orders)   

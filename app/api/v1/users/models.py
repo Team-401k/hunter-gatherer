@@ -1,7 +1,7 @@
-
-
-from sqlalchemy import Boolean, Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Date, Boolean
 from app.database import Base, current_utc_time
+from sqlalchemy.orm import relationship
+from app.database import Base
 
 
 class User(Base):
@@ -25,3 +25,6 @@ class User(Base):
 
     def __repr__(self):
         return f"<User {self.username}>"
+    
+
+    

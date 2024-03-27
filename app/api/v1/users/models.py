@@ -21,7 +21,7 @@ class User(Base):
     emergency_phone = Column(String)
     is_member = Column(Boolean)
     date_expired = Column(Date)
-
+        
 
     def __repr__(self):
         return f"<User {self.username}>"

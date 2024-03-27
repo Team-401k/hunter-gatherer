@@ -17,7 +17,7 @@ class Order(Base):
     type = Column(String, nullable=False) # Enum?
     method = Column(String)  # Enum?
     fee = Column(Float, default=0.0)
-    stripe_paypal_id = Column(String) 
+    stripe_paypal_id = Column(String)
 
     def __repr__(self):
         return f"<Order {self.purchase_id}>"

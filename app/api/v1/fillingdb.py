@@ -36,5 +36,5 @@ def fill_db(start_date: str, end_date: str):
     for order in sqsp_orders:
         print(order.grandTotal.value)
         
-#currently doesn't fill the db actually, but does call all three apis for orders within the dates passed, parses their input, and then prints the amounts of each order 
+#currently doesn't fill the db actually, but does call all three apis for orders within the dates passed, parses their response, and then prints the amounts of each order within that month from each api
 fill_db('2024-02-16T00:00:00Z', '2024-03-10T23:59:59Z')

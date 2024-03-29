@@ -1,17 +1,16 @@
 from app.api.v1.external_apis.base_api import BaseApi
 from dotenv import load_dotenv
 import os
-from  app.api.v1.users.schemas import TransactionAmount, TransactionInfo
+from  app.api.v1.external_apis.schemas import TransactionInfo
 import requests
 
-load_dotenv()
 class PayPalAPI(BaseApi):
-    def __init__(self, client_id, client_secret):
+    def __init__(self):
+        load_dotenv()
         super().__init__("https://api-m.paypal.com")
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.headers = {
-        }
+        self.client_id = os.getenv("PayPal_CLIENT_ID")
+        self.client_secret = os.getenv("PayPal_SECRET_KEY")
+        self.headers = {}
 
     def get_oauth_token(self):
         auth_data = {"grant_type": "client_credentials"}
@@ -21,7 +20,7 @@ class PayPalAPI(BaseApi):
         print(json)
         print()
         if auth_response.status_code == 200:
-            self.headers['Authorization'] = "Bearer " + json['access_token']
+            self.headers['Authorization'] = f"Bearer {json['access_token']}"
         else:
             auth_response.raise_for_status()
 
@@ -33,6 +32,22 @@ class PayPalAPI(BaseApi):
             params['transaction_type'] = transaction_type
         # mak sure to only put in non base part of the url when call make_request
         return self.make_request("/v1/reporting/transactions", "GET", headers=self.headers, params=params)
+    
+    def parse_transactions(self, transactions):
+        if transactions:
+            transaction_details = transactions['transaction_details']
+            return [TransactionInfo(**detail['transaction_info']) for detail in transaction_details]
+        else:
+            print("Error retrieving transactions.")
+            return None
+        
+    def search_parse(self, start_date: str, end_date: str, transaction_type: str = None):
+        transactions = self.search_transactions(start_date, end_date, transaction_type)
+        if transactions:
+            return self.parse_transactions(transactions)
+        else:
+            print("Error retrieving transactions.")
+            return None
 
     def get_donations(self, start_date: str, end_date: str):
         self.get_oauth_token()
@@ -49,20 +64,13 @@ class PayPalAPI(BaseApi):
             return None
 
 
-# Example call
-client_id = os.getenv("PayPal_CLIENT_ID")
-secret_key = os.getenv("PayPal_SECRET_KEY")
-paypal_api = PayPalAPI(client_id, secret_key)
-transactions = paypal_api.search_transactions('2023-10-01T00:00:00-0700', '2023-11-01T00:00:00-0700')
-# donations = paypal_api.get_donations('2023-12-01T00:00:00-0700', '2023-12-30T00:00:00-0700')
-# print(donations)
-#print(transactions['transaction_details'])
+# # Example call
+# paypal_api = PayPalAPI()
+# orders = paypal_api.search_parse('2024-02-16T00:00:00Z', '2024-03-10T23:59:59Z')
+# # donations = paypal_api.get_donations('2023-12-01T00:00:00-0700', '2023-12-30T00:00:00-0700')
+# # print(donations)
+# #print(transactions['transaction_details'])
 
-transaction_details = transactions['transaction_details']
-
-# Parse each transaction detail into a TransactionInfo object
-parsed_transactions = [TransactionInfo(**detail['transaction_info']) for detail in transaction_details]
-
-# Example usage: print out transaction IDs
-for transaction in parsed_transactions:
-    print(transaction.transaction_id)
+# # Example usage: print out transaction IDs
+# for transaction in orders:
+#     print(transaction.transaction_id)

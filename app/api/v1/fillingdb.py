@@ -24,7 +24,7 @@ def fill_db(start_date: str, end_date: str):
     ### Then would try to match stripe and paypal with squarespace to get all info, and then put in database. See below for example of how to access parsed fields.  ####
 
     ##### EXAMPLE OF HOW TO ACCESS PARSED FIELDS #######
-    #look at schemas.py to see what are the fields for each that you can access
+    #look at external_apis/schemas.py to see what are the fields for each that you can access
     #the ones labeled main model are the what the parsing creates a list of, so that model's fields are immediately accessible like the example below
 
     for order in stripe_orders:

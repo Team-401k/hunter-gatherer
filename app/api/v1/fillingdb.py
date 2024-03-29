@@ -13,11 +13,13 @@ def fill_db(start_date: str, end_date: str):
     #get the parsed orders from stripe
     stripe_api = StripeAPI()
     stripe_orders_data = stripe_api.search_parse(start_date, end_date)
+    #notice that to access the orders directly later, had to do .data here, it's because the search_parse function returns a response object that has data as a field, which then has all of the orders
     stripe_orders = stripe_orders_data.data
 
     #get the parsed orders from squarespace
     sqsp_api = SquareSpaceAPI()
     sqsp_orders_result = sqsp_api.search_parse(start_date, end_date)
+    #notice that to access the orders directly later, had to do .result here, it's because the search_parse function returns a response object that has result as a field, which then contains all of the orders
     sqsp_orders = sqsp_orders_result.result
 
 

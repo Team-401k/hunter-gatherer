@@ -11,7 +11,7 @@ class Product(Base):
 
     __tablename__ = "products"
 
-    sku = Column(Integer, primary_key=True)
+    sku = Column(String, primary_key=True, unique=True)
     description = Column(String, nullable=False)
 
 

@@ -69,7 +69,8 @@ class SquareSpaceAPI(BaseApi):
         return SqspTransactionsResponse(**data)
 
     def parse_products(self, data):
-        return SqspProductResponse(**data)
+        products = SqspProductResponse.model_validate(data)
+        return products
     
     def search_parse_orders(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None):
         data = self.get_orders(modifiedAfter, modifiedBefore, cursor, fulfillmentStatus)
@@ -79,11 +80,9 @@ class SquareSpaceAPI(BaseApi):
         data = self.get_transactions(modifiedAfter, modifiedBefore, cursor, fulfillmentStatus)
         return self.parse_transactions(data)
 
-    def search_parse_products(self, cursor=None):
+    def search_parse_products(self, cursor=None) -> SqspProductResponse:
         data = self.get_products(cursor)
         return self.parse_products(data)
-    
-squareSpaceAPI = SquareSpaceAPI()
 
 
 # Define the order class

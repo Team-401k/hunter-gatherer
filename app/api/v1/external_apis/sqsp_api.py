@@ -41,6 +41,8 @@ class SquareSpaceAPI(BaseApi):
     
     def search_parse(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None):
         data = self.get_orders(modifiedAfter, modifiedBefore, cursor, fulfillmentStatus)
+        print(data['result'][0])
+        # print(len(data['result']))
         return self.parse(data)
     
 squareSpaceAPI = SquareSpaceAPI()

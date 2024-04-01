@@ -2,7 +2,7 @@ from app.api.v1.external_apis.base_api import BaseApi
 from dotenv import load_dotenv
 import os
 import json
-from  app.api.v1.external_apis.schemas import OrdersResponse, SqspTransactionsResponse
+from  app.api.v1.external_apis.schemas import OrdersResponse, SqspTransactionsResponse, SqspProductResponse
 
 class SquareSpaceAPI(BaseApi):
 
@@ -51,12 +51,25 @@ class SquareSpaceAPI(BaseApi):
         # Make the request to the SquareSpace orders endpoint
         response = self.make_request('/1.0/commerce/transactions', 'GET', params=params)
         return response
-    
+
+    def get_products(self, cursor = None):
+        # Prepare the request parameters
+        params = {}
+        if cursor:
+            params['cursor'] = cursor
+
+        # Make the request to the SquareSpace inventory endpoint
+        response = self.make_request('/1.0/commerce/inventory', 'GET', params=params)
+        return response
+
     def parse_orders(self, data):
         return OrdersResponse(**data)
     
     def parse_transactions(self, data):
         return SqspTransactionsResponse(**data)
+
+    def parse_products(self, data):
+        return SqspProductResponse(**data)
     
     def search_parse_orders(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None):
         data = self.get_orders(modifiedAfter, modifiedBefore, cursor, fulfillmentStatus)
@@ -65,6 +78,10 @@ class SquareSpaceAPI(BaseApi):
     def search_parse_transactions(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None):
         data = self.get_transactions(modifiedAfter, modifiedBefore, cursor, fulfillmentStatus)
         return self.parse_transactions(data)
+
+    def search_parse_products(self, cursor=None):
+        data = self.get_products(cursor)
+        return self.parse_products(data)
     
 squareSpaceAPI = SquareSpaceAPI()
 

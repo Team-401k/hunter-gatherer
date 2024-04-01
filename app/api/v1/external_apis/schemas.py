@@ -303,3 +303,26 @@ class Pagination(BaseModel):
 class SqspTransactionsResponse(BaseModel):
     documents: List[Document]
     pagination: Pagination
+
+##### End of Squarespace Transactions Schemas #####
+
+##### Squarespace Products Schemas #####
+class InventoryItem(BaseModel):
+    variantId: str
+    sku: str
+    descriptor: str
+    quantity: int
+    isUnlimited: bool
+
+
+class Pagination(BaseModel):
+    nextPageUrl: Optional[str] = None
+    nextPageCursor: Optional[str] = None
+    hasNextPage: bool
+
+
+class SqspProductResponse(BaseModel):
+    inventory: List[InventoryItem]
+    pagination: Pagination
+
+##### End of Squarespace Products Schemas #####

@@ -7,4 +7,3 @@ class Stub(BaseModel):
     """Stub schema."""
 
     some_string: str
-

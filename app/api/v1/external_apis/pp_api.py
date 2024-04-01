@@ -1,9 +1,10 @@
-from app.api.v1.external_apis.base_api import BaseApi
-from dotenv import load_dotenv
-import os
-from  app.api.v1.external_apis.schemas import TransactionInfo
 import requests
+from dotenv import load_dotenv
+
+from app.api.v1.external_apis.base_api import BaseApi
+from app.api.v1.external_apis.schemas import TransactionInfo
 from app.config import settings
+
 
 class PayPalAPI(BaseApi):
     def __init__(self):
@@ -15,32 +16,54 @@ class PayPalAPI(BaseApi):
 
     def get_oauth_token(self):
         auth_data = {"grant_type": "client_credentials"}
-        auth_response = requests.post(self.base_url + "/v1/oauth2/token", auth=(self.client_id, self.client_secret),
-                                      data=auth_data, headers=self.headers)
+        auth_response = requests.post(
+            self.base_url + "/v1/oauth2/token",
+            auth=(self.client_id, self.client_secret),
+            data=auth_data,
+            headers=self.headers,
+        )
         json = auth_response.json()
         if auth_response.status_code == 200:
-            self.headers['Authorization'] = f"Bearer {json['access_token']}"
+            self.headers["Authorization"] = f"Bearer {json['access_token']}"
         else:
             auth_response.raise_for_status()
 
-    def search_transactions(self, start_date: str, end_date: str, transaction_type: str = None):
+    def search_transactions(
+        self,
+        start_date: str,
+        end_date: str,
+        transaction_type: str = None,
+    ):
         # do this every time
         self.get_oauth_token()
         params = {"start_date": start_date, "end_date": end_date}
         if transaction_type:
-            params['transaction_type'] = transaction_type
+            params["transaction_type"] = transaction_type
         # mak sure to only put in non base part of the url when call make_request
-        return self.make_request("/v1/reporting/transactions", "GET", headers=self.headers, params=params)
-    
+        return self.make_request(
+            "/v1/reporting/transactions",
+            "GET",
+            headers=self.headers,
+            params=params,
+        )
+
     def parse_transactions(self, transactions):
         if transactions:
-            transaction_details = transactions['transaction_details']
-            return [TransactionInfo(**detail['transaction_info']) for detail in transaction_details]
+            transaction_details = transactions["transaction_details"]
+            return [
+                TransactionInfo(**detail["transaction_info"])
+                for detail in transaction_details
+            ]
         else:
             print("Error retrieving transactions.")
             return None
-        
-    def search_parse(self, start_date: str, end_date: str, transaction_type: str = None):
+
+    def search_parse(
+        self,
+        start_date: str,
+        end_date: str,
+        transaction_type: str = None,
+    ):
         transactions = self.search_transactions(start_date, end_date, transaction_type)
         if transactions:
             return self.parse_transactions(transactions)
@@ -52,10 +75,13 @@ class PayPalAPI(BaseApi):
         self.get_oauth_token()
         total_transactions = self.search_transactions(start_date, end_date)
         if total_transactions:
-            donation_orders = [transaction for transaction in total_transactions['transaction_details'] if
-                               'transaction_info' in transaction and
-                               'transaction_subject' in transaction['transaction_info'] and
-                               'Donation' in transaction['transaction_info']['transaction_subject']]
+            donation_orders = [
+                transaction
+                for transaction in total_transactions["transaction_details"]
+                if "transaction_info" in transaction
+                and "transaction_subject" in transaction["transaction_info"]
+                and "Donation" in transaction["transaction_info"]["transaction_subject"]
+            ]
 
             return donation_orders
         else:

@@ -31,7 +31,6 @@ class Settings:
 
     # SquareSpace API
     SQUARESPACE_API_KEY = os.getenv("SQUARESPACE_API_KEY")
-    
 
     HOST = "localhost"
     PORT = 8000

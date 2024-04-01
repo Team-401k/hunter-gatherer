@@ -19,7 +19,7 @@ def fill_db(start_date: str, end_date: str):
 
     #get the parsed orders from squarespace
     sqsp_api = SquareSpaceAPI()
-    sqsp_orders_result = sqsp_api.search_parse_orders(start_date, end_date)
+    sqsp_orders_result = sqsp_api.search_parse_orders_list(start_date, end_date)
     # print(sqsp_orders_result)
     #notice that to access the orders directly later, had to do .result here, it's because the search_parse function returns a response object that has result as a field, which then contains all of the orders
     sqsp_orders = sqsp_orders_result.result

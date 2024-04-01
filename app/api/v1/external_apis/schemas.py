@@ -276,10 +276,10 @@ class SalesLineItem(BaseModel):
 
 class Document(BaseModel):
     id: str
-    createdOn: str
-    modifiedOn: str
+    createdOn: datetime
+    modifiedOn: datetime
     customerEmail: str
-    salesOrderId: Optional[str]
+    salesOrderId: Optional[str] = None
     voided: bool
     totalSales: TotalSales
     totalNetSales: TotalNetSales
@@ -295,8 +295,8 @@ class Document(BaseModel):
 
 
 class Pagination(BaseModel):
-    nextPageUrl: Optional[str]
-    nextPageCursor: Optional[str]
+    nextPageUrl: Optional[str] = None
+    nextPageCursor: Optional[str] = None
     hasNextPage: bool
 
 
@@ -326,3 +326,95 @@ class SqspProductResponse(BaseModel):
     pagination: Pagination
 
 ##### End of Squarespace Products Schemas #####
+    
+
+##### Squarespace Order Detail Schemas #####
+class BillingAddress(BaseModel):
+    firstName: str
+    lastName: str
+    address1: str
+    address2: str
+    city: str
+    state: str
+    countryCode: str
+    postalCode: str
+    phone: str
+
+
+class UnitPricePaid(BaseModel):
+    value: str
+    currency: str
+
+
+class Customization(BaseModel):
+    label: str
+    value: str
+
+
+class LineItem(BaseModel):
+    id: str
+    variantId: str
+    sku: str
+    weight: float
+    width: float
+    length: float
+    height: float
+    productId: str
+    productName: str
+    quantity: int
+    unitPricePaid: UnitPricePaid
+    variantOptions: List
+    customizations: List[Customization]
+    imageUrl: str
+    lineItemType: str
+
+
+class Subtotal(BaseModel):
+    value: str
+    currency: str
+
+
+class ShippingTotal(BaseModel):
+    value: str
+    currency: str
+
+
+class DiscountTotal(BaseModel):
+    value: str
+    currency: str
+
+
+class TaxTotal(BaseModel):
+    value: str
+    currency: str
+
+
+class RefundedTotal(BaseModel):
+    value: str
+    currency: str
+
+
+class GrandTotal(BaseModel):
+    value: str
+    currency: str
+
+
+class SqspOrderDetailResponse(BaseModel):
+    id: str
+    orderNumber: str
+    createdOn: str
+    modifiedOn: str
+    channel: str
+    customerEmail: str
+    billingAddress: BillingAddress
+    fulfillmentStatus: str
+    lineItems: List[LineItem]
+    subtotal: Subtotal
+    shippingTotal: ShippingTotal
+    discountTotal: DiscountTotal
+    taxTotal: TaxTotal
+    refundedTotal: RefundedTotal
+    grandTotal: GrandTotal
+    priceTaxInterpretation: str
+
+##### End of Squarespace Order Detail Schemas #####

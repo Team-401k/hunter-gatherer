@@ -18,7 +18,7 @@ class Order(Base):
     sku = Column(String, ForeignKey('products.sku'), nullable=False)
     payment_method = Column(String)  # Enum?
     fee = Column(Float, default=0.0)
-    foreign_transaction_id = Column(String)
+    external_transaction_id = Column(String)
 
     def __repr__(self):
         return f"<Order {self.purchase_id}>"

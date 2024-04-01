@@ -11,6 +11,8 @@ class User(Base):
     name = Column(String, nullable=False)
     address = Column(String)
     phone = Column(String)
+    emergency_contact = Column(String)
+    emergency_contact_phone = Column(String)
     date_joined = Column(DateTime)
     date_renewed = Column(DateTime)
     is_member = Column(Boolean)

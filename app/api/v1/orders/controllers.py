@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 
-@router.post("/orders/ingestion")
+@router.post("/sqsp_ingestion")
 def ingest_sqsp_orders(session: Session = Depends(db)):
     """Write documentation here."""
 
@@ -32,13 +32,22 @@ def ingest_sqsp_orders(session: Session = Depends(db)):
     sqsp_orders = services.get_orders(services.OrderService.SQSP, '2024-02-16T00:00:00Z', '2024-03-10T23:59:59Z')
     # ping api
     # api returns list of pydantic objects
-    for item in sqsp_orders:
-        new_order = Order(**item.model_dump())
-        session.add(new_order)
-        session.commit()
-        
+    for item in sqsp_orders.result:
+        new_order = Order(
+            purchase_id=item.id,
+            amount=item.grandTotal.value,
+            date=item.createdOn,
+            type='sqsp',
+            method='method',
+            fee=0.0,
+            stripe_paypal_id=None,
+        )
+        # session.add(new_order)
+        # session.commit()
+        # break
 
-@router.post("/orders/ingestion")
+
+@router.post("/stripe_ingestion")
 def ingest_stripe_orders(session: Session = Depends(db)):
     stripe_orders = services.get_orders(services.OrderService.STRIPE, '2024-02-16T00:00:00Z', '2024-03-10T23:59:59Z')
     for item in stripe_orders:
@@ -47,10 +56,12 @@ def ingest_stripe_orders(session: Session = Depends(db)):
         session.commit()
 
 
-@router.post("/orders/ingestion")
+@router.post("/paypal_ingestion")
 def ingest_pp_orders(session: Session = Depends(db)):
     pp_orders = services.get_orders(services.OrderService.PAYPAL, '2024-02-16T00:00:00Z', '2024-03-10T23:59:59Z')
     for item in pp_orders:
         new_order = Order(**item.model_dump())
         session.add(new_order)
         session.commit()
+
+

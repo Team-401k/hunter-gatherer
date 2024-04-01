@@ -3,13 +3,14 @@ from dotenv import load_dotenv
 import os
 from  app.api.v1.external_apis.schemas import TransactionInfo
 import requests
+from app.config import settings
 
 class PayPalAPI(BaseApi):
     def __init__(self):
         load_dotenv()
         super().__init__("https://api-m.paypal.com")
-        self.client_id = os.getenv("PayPal_CLIENT_ID")
-        self.client_secret = os.getenv("PayPal_SECRET_KEY")
+        self.client_id = settings.PAYPAL_CLIENT_ID
+        self.client_secret = settings.PAYPAL_SECRET_KEY
         self.headers = {}
 
     def get_oauth_token(self):

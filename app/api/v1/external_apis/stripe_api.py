@@ -55,7 +55,6 @@ class StripeAPI(BaseApi):
     
     def search_parse(self, start_date, end_date):
         charges = self.search_transactions(start_date, end_date)
-        print(charges)
         return self.parse(charges)
 
 

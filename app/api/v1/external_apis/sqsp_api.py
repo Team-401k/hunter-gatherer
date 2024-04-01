@@ -61,8 +61,8 @@ class SquareSpaceAPI(BaseApi):
         # Make the request to the SquareSpace inventory endpoint
         response = self.make_request('/1.0/commerce/inventory', 'GET', params=params)
         return response
-
-    def parse_orders(self, data):
+    
+    def parse_orders(self, data) -> OrdersResponse:
         return OrdersResponse(**data)
     
     def parse_transactions(self, data):

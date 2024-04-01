@@ -18,8 +18,6 @@ class PayPalAPI(BaseApi):
         auth_response = requests.post(self.base_url + "/v1/oauth2/token", auth=(self.client_id, self.client_secret),
                                       data=auth_data, headers=self.headers)
         json = auth_response.json()
-        print(json)
-        print()
         if auth_response.status_code == 200:
             self.headers['Authorization'] = f"Bearer {json['access_token']}"
         else:

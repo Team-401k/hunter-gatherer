@@ -7,20 +7,13 @@ from app.database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    email=Column(String, nullable=False, primary_key=True, index=True, unique=True)
     name = Column(String, nullable=False)
-    email=Column(String, nullable=False)
-    status = Column(String)
-    types = Column(String)
     address = Column(String)
     phone = Column(String)
-    usps = Column(String)
-    date_joined = Column(Date)
-    date_renewed = Column(Date)
-    emergency_contact = Column(String)
-    emergency_phone = Column(String)
+    date_joined = Column(DateTime)
+    date_renewed = Column(DateTime)
     is_member = Column(Boolean)
-    date_expired = Column(Date)
         
 
     def __repr__(self):

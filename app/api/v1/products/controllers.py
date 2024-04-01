@@ -13,7 +13,10 @@ router = APIRouter()
 @router.post("/sqsp_product_ingestion")
 def ingest_sqsp_products(session: Session = Depends(db)):
     sqsp_products = services.get_products()
+    existing_skus = services.get_existing_product_skus(session)
     for item in sqsp_products:
+        if item.sku in existing_skus:
+            continue
         new_product = Product(
             sku = item.sku,
             description = item.descriptor

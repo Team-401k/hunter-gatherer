@@ -1,8 +1,10 @@
 """Services for products."""
 from typing import List
 
+from sqlalchemy.orm import Session
 from app.api.v1.external_apis.schemas import SqspProductResponse, InventoryItem
 from app.api.v1.external_apis.sqsp_api import SquareSpaceAPI
+from app.api.v1.products.models import Product
 
 sqsp_api = SquareSpaceAPI()
 
@@ -15,5 +17,8 @@ def get_products() -> List[InventoryItem]:
         products.extend(products_response.inventory)
         has_next_page = products_response.pagination.hasNextPage
 
-    print(products)
     return products
+
+def get_existing_product_skus(session: Session) -> List[str]:
+    skus = session.query(Product.sku.distinct().label('sku')).all()
+    return set([sku.sku for sku in skus])

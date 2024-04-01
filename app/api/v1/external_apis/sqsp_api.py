@@ -2,7 +2,7 @@ from app.api.v1.external_apis.base_api import BaseApi
 from dotenv import load_dotenv
 import os
 import json
-from  app.api.v1.external_apis.schemas import OrdersResponse
+from  app.api.v1.external_apis.schemas import OrdersResponse, SqspTransactionsResponse
 
 class SquareSpaceAPI(BaseApi):
 
@@ -36,15 +36,35 @@ class SquareSpaceAPI(BaseApi):
         response = self.make_request('/1.0/commerce/orders', 'GET', params=params)
         return response
     
-    def parse(self, data):
-        orders_response = OrdersResponse.model_validate(data)
-        # print(orders_response)
-        return orders_response
+    def get_transactions(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None):
+        # Prepare the request parameters
+        params = {}
+        if modifiedAfter:
+            params['modifiedAfter'] = modifiedAfter
+        if modifiedBefore:
+            params['modifiedBefore'] = modifiedBefore
+        if cursor:
+            params['cursor'] = cursor
+        if fulfillmentStatus:
+            params['fulfillmentStatus'] = fulfillmentStatus
+
+        # Make the request to the SquareSpace orders endpoint
+        response = self.make_request('/1.0/commerce/transactions', 'GET', params=params)
+        return response
     
-    def search_parse(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None):
+    def parse_orders(self, data):
+        return OrdersResponse(**data)
+    
+    def parse_transactions(self, data):
+        return SqspTransactionsResponse(**data)
+    
+    def search_parse_orders(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None):
         data = self.get_orders(modifiedAfter, modifiedBefore, cursor, fulfillmentStatus)
-        # print(len(data['result']))
-        return self.parse(data)
+        return self.parse_orders(data)
+    
+    def search_parse_transactions(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None):
+        data = self.get_transactions(modifiedAfter, modifiedBefore, cursor, fulfillmentStatus)
+        return self.parse_transactions(data)
     
 squareSpaceAPI = SquareSpaceAPI()
 

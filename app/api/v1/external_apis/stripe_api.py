@@ -32,7 +32,7 @@ class StripeAPI(BaseApi):
             charges = stripe.Charge.list(
                 created = {
                     "gte": start_date,  # greater than or equal to this timestamp (start time)
-                    "lt": end_date    # less than this timestamp (end time)
+                    "lte": end_date    # less than this timestamp (end time)
 
                 }
             )
@@ -55,6 +55,7 @@ class StripeAPI(BaseApi):
     
     def search_parse(self, start_date, end_date):
         charges = self.search_transactions(start_date, end_date)
+        print(charges)
         return self.parse(charges)
 
 

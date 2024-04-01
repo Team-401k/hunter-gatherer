@@ -140,3 +140,166 @@ class OrdersResponse(BaseModel):
     pagination: dict
 
 ###### End of SquareSpace ######
+    
+##### Squarespace Transactions Schemas #####
+class TotalSales(BaseModel):
+    value: str
+    currency: str
+
+
+class TotalNetSales(BaseModel):
+    value: str
+    currency: str
+
+
+class TotalNetShipping(BaseModel):
+    value: str
+    currency: str
+
+
+class TotalTaxes(BaseModel):
+    value: str
+    currency: str
+
+
+class Total(BaseModel):
+    value: str
+    currency: str
+
+
+class TotalNetPayment(BaseModel):
+    value: str
+    currency: str
+
+
+class Amount(BaseModel):
+    value: str
+    currency: str
+
+
+class RefundedAmount(BaseModel):
+    value: str
+    currency: str
+
+
+class NetAmount(BaseModel):
+    value: str
+    currency: str
+
+
+class ProcessingFeeAmount(BaseModel):
+    value: str
+    currency: str
+
+
+class AmountGatewayCurrency(BaseModel):
+    value: str
+    currency: str
+
+
+class ProcessingFeeRefundedAmount(BaseModel):
+    value: str
+    currency: str
+
+
+class RefundedAmountGatewayCurrency(BaseModel):
+    value: str
+    currency: str
+
+
+class ProcessingFeeNetAmount(BaseModel):
+    value: str
+    currency: str
+
+
+class NetAmountGatewayCurrency(BaseModel):
+    value: str
+    currency: str
+
+
+class ProcessingFee(BaseModel):
+    id: str
+    amount: ProcessingFeeAmount
+    amountGatewayCurrency: AmountGatewayCurrency
+    exchangeRate: int
+    refundedAmount: ProcessingFeeRefundedAmount
+    refundedAmountGatewayCurrency: RefundedAmountGatewayCurrency
+    netAmount: ProcessingFeeNetAmount
+    netAmountGatewayCurrency: NetAmountGatewayCurrency
+    feeRefunds: List
+
+
+class Payment(BaseModel):
+    id: str
+    amount: Amount
+    refundedAmount: RefundedAmount
+    netAmount: NetAmount
+    creditCardType: Optional[str]
+    provider: str
+    refunds: List
+    processingFees: List[ProcessingFee]
+    giftCardId: str
+    paidOn: str
+    externalTransactionId: str
+    externalTransactionProperties: List
+    externalCustomerId: str
+
+
+class DiscountAmount(BaseModel):
+    value: str
+    currency: str
+
+
+class TotalSales1(BaseModel):
+    value: str
+    currency: str
+
+
+class TotalNetSales1(BaseModel):
+    value: str
+    currency: str
+
+
+class Total1(BaseModel):
+    value: str
+    currency: str
+
+
+class SalesLineItem(BaseModel):
+    id: str
+    discountAmount: DiscountAmount
+    totalSales: TotalSales1
+    totalNetSales: TotalNetSales1
+    total: Total1
+    taxes: List
+
+
+class Document(BaseModel):
+    id: str
+    createdOn: str
+    modifiedOn: str
+    customerEmail: str
+    salesOrderId: Optional[str]
+    voided: bool
+    totalSales: TotalSales
+    totalNetSales: TotalNetSales
+    totalNetShipping: TotalNetShipping
+    totalTaxes: TotalTaxes
+    total: Total
+    totalNetPayment: TotalNetPayment
+    payments: List[Payment]
+    salesLineItems: List[SalesLineItem]
+    discounts: List
+    shippingLineItems: List
+    paymentGatewayError: str
+
+
+class Pagination(BaseModel):
+    nextPageUrl: Optional[str]
+    nextPageCursor: Optional[str]
+    hasNextPage: bool
+
+
+class SqspTransactionsResponse(BaseModel):
+    documents: List[Document]
+    pagination: Pagination

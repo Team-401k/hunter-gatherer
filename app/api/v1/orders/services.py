@@ -6,6 +6,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 import app.api.v1.users.services as user_services
+from app.api.v1.external_apis.pp_api import PayPalAPI
 from app.api.v1.external_apis.schemas import (
     Document,
     OrdersResponse,
@@ -13,7 +14,13 @@ from app.api.v1.external_apis.schemas import (
     SqspOrderDetailResponse,
     SqspTransactionsResponse,
 )
+from app.api.v1.external_apis.sqsp_api import SquareSpaceAPI
+from app.api.v1.external_apis.stripe_api import StripeAPI
 from app.api.v1.orders.models import Order
+
+paypal_api = PayPalAPI()
+stripe_api = StripeAPI()
+sqsp_api = SquareSpaceAPI()
 
 
 class OrderService(str, enum.Enum):

@@ -1,96 +1,167 @@
-from app.api.v1.external_apis.base_api import BaseApi
-from dotenv import load_dotenv
 import os
-import json
-from  app.api.v1.external_apis.schemas import OrdersResponse, SqspOrderDetailResponse, SqspTransactionsResponse, SqspProductResponse
+
+from dotenv import load_dotenv
+
+from app.api.v1.external_apis.base_api import BaseApi
+from app.api.v1.external_apis.schemas import (
+    OrdersResponse,
+    SqspOrderDetailResponse,
+    SqspProductResponse,
+    SqspProfileResponse,
+    SqspTransactionsResponse,
+)
+
 
 class SquareSpaceAPI(BaseApi):
 
     def __init__(self):
-        load_dotenv() # load the .env
-        api_key = os.getenv('SQUARESPACE_API_KEY')
-        super().__init__('https://api.squarespace.com') 
+        load_dotenv()  # load the .env
+        api_key = os.getenv("SQUARESPACE_API_KEY")
+        super().__init__("https://api.squarespace.com")
         self.api_key = api_key
 
-    def make_request(self, url: str, method: str, headers: dict = None, params: dict = None, data: dict = None) -> dict:
+    def make_request(
+        self,
+        url: str,
+        method: str,
+        headers: dict = None,
+        params: dict = None,
+        data: dict = None,
+    ) -> dict:
         if headers is None:
             headers = {}
         # Add the Authorization header with your SquareSpace API key
-        headers['Authorization'] = f'Bearer {self.api_key}'
+        headers["Authorization"] = f"Bearer {self.api_key}"
         # Proceed with the request as usual
         return super().make_request(url, method, headers, params, data)
-    
-    def get_orders_list(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None):
+
+    def get_orders_list(
+        self,
+        modifiedAfter=None,
+        modifiedBefore=None,
+        cursor=None,
+        fulfillmentStatus=None,
+    ):
         # Prepare the request parameters
         params = {}
         if modifiedAfter:
-            params['modifiedAfter'] = modifiedAfter
+            params["modifiedAfter"] = modifiedAfter
         if modifiedBefore:
-            params['modifiedBefore'] = modifiedBefore
+            params["modifiedBefore"] = modifiedBefore
         if cursor:
-            params['cursor'] = cursor
+            params["cursor"] = cursor
         if fulfillmentStatus:
-            params['fulfillmentStatus'] = fulfillmentStatus
+            params["fulfillmentStatus"] = fulfillmentStatus
 
         # Make the request to the SquareSpace orders endpoint
-        response = self.make_request('/1.0/commerce/orders', 'GET', params=params)
+        response = self.make_request("/1.0/commerce/orders", "GET", params=params)
         return response
-    
+
     def get_order_detail(self, order_id):
         # Make the request to the SquareSpace orders endpoint
-        response = self.make_request(f'/1.0/commerce/orders/{order_id}', 'GET')
+        response = self.make_request(f"/1.0/commerce/orders/{order_id}", "GET")
         return response
-    
-    def get_transactions(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None):
+
+    def get_transactions(
+        self,
+        modifiedAfter=None,
+        modifiedBefore=None,
+        cursor=None,
+        fulfillmentStatus=None,
+    ):
         # Prepare the request parameters
         params = {}
         if modifiedAfter:
-            params['modifiedAfter'] = modifiedAfter
+            params["modifiedAfter"] = modifiedAfter
         if modifiedBefore:
-            params['modifiedBefore'] = modifiedBefore
+            params["modifiedBefore"] = modifiedBefore
         if cursor:
-            params['cursor'] = cursor
+            params["cursor"] = cursor
         if fulfillmentStatus:
-            params['fulfillmentStatus'] = fulfillmentStatus
+            params["fulfillmentStatus"] = fulfillmentStatus
 
         # Make the request to the SquareSpace orders endpoint
-        response = self.make_request('/1.0/commerce/transactions', 'GET', params=params)
+        response = self.make_request("/1.0/commerce/transactions", "GET", params=params)
         return response
 
-    def get_products(self, cursor = None):
+    def get_products(self, cursor: str = None):
         # Prepare the request parameters
         params = {}
         if cursor:
-            params['cursor'] = cursor
+            params["cursor"] = cursor
 
         # Make the request to the SquareSpace inventory endpoint
-        response = self.make_request('/1.0/commerce/inventory', 'GET', params=params)
+        response = self.make_request("/1.0/commerce/inventory", "GET", params=params)
         return response
-    
+
+    def get_profile(self, email: str):
+        # Prepare the request parameters
+        params = {}
+        if email:
+            params["filter"] = f"email,{email}"
+
+        # Make the request to the SquareSpace inventory endpoint
+        response = self.make_request("/1.0/profiles", "GET", params=params)
+        return response
+
     def parse_orders_list(self, data) -> OrdersResponse:
         return OrdersResponse.model_validate(data)
-    
+
     def parse_order_detail(self, data) -> SqspOrderDetailResponse:
         return SqspOrderDetailResponse.model_validate(data)
-    
+
     def parse_transactions(self, data):
         return SqspTransactionsResponse.model_validate(data)
 
     def parse_products(self, data):
         products = SqspProductResponse.model_validate(data)
         return products
-    
-    def search_parse_orders_list(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None) -> OrdersResponse:
-        data = self.get_orders_list(modifiedAfter, modifiedBefore, cursor, fulfillmentStatus)
+
+    def parse_profiles(self, data):
+        profiles = SqspProfileResponse.model_validate(data)
+        return profiles
+
+    def search_parse_orders_list(
+        self,
+        modifiedAfter=None,
+        modifiedBefore=None,
+        cursor=None,
+        fulfillmentStatus=None,
+    ) -> OrdersResponse:
+        data = self.get_orders_list(
+            modifiedAfter,
+            modifiedBefore,
+            cursor,
+            fulfillmentStatus,
+        )
         return self.parse_orders_list(data)
-    
-    def search_parse_transactions(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None) -> SqspTransactionsResponse:
-        data = self.get_transactions(modifiedAfter, modifiedBefore, cursor, fulfillmentStatus)
+
+    def search_parse_transactions(
+        self,
+        modifiedAfter=None,
+        modifiedBefore=None,
+        cursor=None,
+        fulfillmentStatus=None,
+    ) -> SqspTransactionsResponse:
+        data = self.get_transactions(
+            modifiedAfter,
+            modifiedBefore,
+            cursor,
+            fulfillmentStatus,
+        )
         return self.parse_transactions(data)
 
     def search_parse_products(self, cursor=None) -> SqspProductResponse:
         data = self.get_products(cursor)
         return self.parse_products(data)
+
+    def search_parse_order_detail(self, order_id) -> SqspOrderDetailResponse:
+        data = self.get_order_detail(order_id)
+        return self.parse_order_detail(data)
+
+    def search_parse_profile(self, email) -> SqspProfileResponse:
+        data = self.get_profile(email)
+        return self.parse_profiles(data)
 
 
 # Define the order class
@@ -134,7 +205,7 @@ class SquareSpaceAPI(BaseApi):
 #     print(order.id)
 # print(data)
 
-# # Pydantic OrderWrapper to unwrap API call into 
+# # Pydantic OrderWrapper to unwrap API call into
 
 # order_wrapper = OrderWrapper.model_validate(data)
 # for order in order_wrapper.result:
@@ -153,4 +224,4 @@ class SquareSpaceAPI(BaseApi):
 #     print("Order is ", order)
 # =======
 # orders = squareSpaceAPI.get_orders(modifiedAfter='2023-12-10T00:00:00Z', modifiedBefore='2024-02-17T23:59:59Z')
-# print(orders)   
+# print(orders)

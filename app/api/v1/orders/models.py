@@ -1,28 +1,40 @@
 """DB Models for orders."""
 
-from sqlalchemy import DateTime, Float, ForeignKey
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Integer, String
-from sqlalchemy.dialects.postgresql import ARRAY
+import enum
 
-from app.database import Base, current_utc_time
+from sqlalchemy import DateTime, Enum, Float, ForeignKey
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import String
+
+from app.database import Base
+
+
+class PaymentPlatform(str, enum.Enum):
+    STRIPE = "STRIPE"
+    PAYPAL = "PAYPAL"
 
 
 class Order(Base):
-    __tablename__ = 'orders'
+    __tablename__ = "orders"
 
-    purchase_id = Column(String, primary_key=True, index=True)
-    user_ids = Column(ARRAY(String), nullable=False)  # Assuming users table with id as primary key
+    sqsp_transaction_id = Column(String, nullable=False, primary_key=True)
+    sqsp_order_id = Column(String, index=True, nullable=True)
+    user_emails = Column(
+        ARRAY(String),
+        nullable=False,
+    )  # Assuming users table with email as primary key
     amount = Column(Float, nullable=False)
     date = Column(DateTime, nullable=False)
-    sku = Column(String, ForeignKey('products.sku'), nullable=False)
-    payment_method = Column(String)  # Enum?
+    sku = Column(String, ForeignKey("products.sku"), nullable=False)
+    # payment_method = Column(String)  # Enum? either STRIPE or PAYPAL
+    payment_platform = Column(Enum(PaymentPlatform), nullable=False)
     fee = Column(Float, default=0.0)
-    external_transaction_id = Column(String)
+    external_transaction_id = Column(String, nullable=False)
 
     def __repr__(self):
         return f"<Order {self.purchase_id}>"
-    
+
     # def __init__(
     #     self,
     #     id: str,

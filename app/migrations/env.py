@@ -1,13 +1,11 @@
 from logging.config import fileConfig
 
-from sqlalchemy import create_engine
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import create_engine
 
 from app.app import load_all_models
-from app.database import meta
 from app.config import settings
+from app.database import meta
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -68,7 +66,7 @@ def run_migrations_online() -> None:
 
     with engine.connect() as connection:
         context.configure(
-            connection=connection, 
+            connection=connection,
             target_metadata=target_metadata,
             compare_server_default=True,
         )

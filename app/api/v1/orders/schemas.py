@@ -2,7 +2,9 @@
 
 from datetime import datetime
 from typing import List
+
 from pydantic import BaseModel
+
 
 class Address(BaseModel):
     firstName: str
@@ -14,12 +16,15 @@ class Address(BaseModel):
     countryCode: str
     postalCode: str
 
+
 class GrandTotal(BaseModel):
     currency: str
     value: float
 
+
 class OrderSchema(BaseModel):
     """Stub schema."""
+
     id: str
     orderNumber: str
     createdOn: datetime
@@ -28,7 +33,6 @@ class OrderSchema(BaseModel):
     billingAddress: Address
     grandTotal: GrandTotal
 
+
 class OrderWrapper(BaseModel):
     result: List[OrderSchema]
-
-

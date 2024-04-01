@@ -1,24 +1,26 @@
-from app.api.v1.external_apis.base_api import BaseApi
-from dotenv import load_dotenv
-import os                                                                                                                                                                                                          
-import requests
-import stripe
-from datetime import datetime
+import os
 import time
-from  app.api.v1.external_apis.schemas import ChargesResponse
+from datetime import datetime
+
+import stripe
+from dotenv import load_dotenv
+
+from app.api.v1.external_apis.base_api import BaseApi
+from app.api.v1.external_apis.schemas import ChargesResponse
+
 
 def iso_to_unix(timestamp):
     """Convert ISO 8601 string to UNIX timestamp."""
     # Convert the ISO 8601 string to a datetime object
-    dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+    dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
     # Convert the datetime object to UNIX timestamp and return it
     return int(time.mktime(dt.timetuple()))
+
 
 class StripeAPI(BaseApi):
     def __init__(self):
         super().__init__("https://api.stripe.com")
-        self.headers = {
-        }
+        self.headers = {}
         load_dotenv()
         stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
@@ -30,11 +32,10 @@ class StripeAPI(BaseApi):
             # donations = stripe.
             # print(len(donations))
             charges = stripe.Charge.list(
-                created = {
+                created={
                     "gte": start_date,  # greater than or equal to this timestamp (start time)
-                    "lte": end_date    # less than this timestamp (end time)
-
-                }
+                    "lte": end_date,  # less than this timestamp (end time)
+                },
             )
             return charges
 
@@ -52,11 +53,10 @@ class StripeAPI(BaseApi):
 
     def parse(self, charges):
         return ChargesResponse(**charges)
-    
+
     def search_parse(self, start_date, end_date):
         charges = self.search_transactions(start_date, end_date)
         return self.parse(charges)
-
 
     def get_donations(self, start_date, end_date):
         try:
@@ -64,12 +64,12 @@ class StripeAPI(BaseApi):
             charges = stripe.Charge.list(
                 created={
                     "gte": start_date,
-                    "lt": end_date
-                }
+                    "lt": end_date,
+                },
             )
 
             for charge in charges.auto_paging_iter():
-                if 'Donation' in charge.get('description'):
+                if "Donation" in charge.get("description"):
                     total_donations.append(charge)
 
             return total_donations
@@ -77,7 +77,8 @@ class StripeAPI(BaseApi):
             print(e)
             return None
 
-#Example Call
+
+# Example Call
 # stripe_api = StripeAPI()
 # charges = stripe_api.search_parse('2024-02-16T00:00:00Z', '2024-03-10T23:59:59Z')
 

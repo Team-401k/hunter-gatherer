@@ -1,8 +1,9 @@
 from fastapi import APIRouter
-from app.api.v1.squarespace.controllers import router as squarespace_router
-from app.api.v1.users.controllers import router as users_router
+
 from app.api.v1.orders.controllers import router as orders_router
 from app.api.v1.products.controllers import router as products_router
+from app.api.v1.squarespace.controllers import router as squarespace_router
+from app.api.v1.users.controllers import router as users_router
 
 router = APIRouter(prefix="/v1")
 

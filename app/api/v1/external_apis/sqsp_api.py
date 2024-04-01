@@ -37,10 +37,13 @@ class SquareSpaceAPI(BaseApi):
         return response
     
     def parse(self, data):
-        return OrdersResponse(**data)
+        orders_response = OrdersResponse.model_validate(data)
+        # print(orders_response)
+        return orders_response
     
     def search_parse(self, modifiedAfter=None, modifiedBefore=None, cursor=None, fulfillmentStatus=None):
         data = self.get_orders(modifiedAfter, modifiedBefore, cursor, fulfillmentStatus)
+        # print(len(data['result']))
         return self.parse(data)
     
 squareSpaceAPI = SquareSpaceAPI()

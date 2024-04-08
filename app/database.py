@@ -76,12 +76,12 @@ class Base:
     enhance autocompletion.
     """
 
-    __tablename__: str
-    __table__: Table
-
     # Add created and updated timestamps to all tables/models
     created_at = Column(DateTime, default=current_utc_time)
     updated_at = Column(DateTime, default=current_utc_time, onupdate=current_utc_time)
+
+    __tablename__: str
+    __table__: Table
 
     @classmethod
     def get(cls: Type[Self], session: Session, ident: Any) -> Self:

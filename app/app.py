@@ -70,7 +70,7 @@ def load_all_models() -> None:
         module_name = path_to_import(str(path))
         __import__(module_name)
 
-    load_past_tables()
+    # load_past_tables()
 
 
 def get_app() -> FastAPI:

@@ -2,7 +2,7 @@
 
 import enum
 
-from sqlalchemy import DateTime, Enum, Float, ForeignKey
+from sqlalchemy import DateTime, Enum, Float
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import String
@@ -18,7 +18,13 @@ class PaymentPlatform(str, enum.Enum):
 class Order(Base):
     __tablename__ = "orders"
 
-    sqsp_transaction_id = Column(String, nullable=False, primary_key=True)
+    sqsp_transaction_id = Column(
+        String,
+        nullable=False,
+        primary_key=True,
+        index=True,
+        unique=True,
+    )
     sqsp_order_id = Column(String, index=True, nullable=True)
     user_emails = Column(
         ARRAY(String),

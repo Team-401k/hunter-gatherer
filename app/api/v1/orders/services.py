@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.api.v1.products.models import Product
 
-import datetime
+from datetime import datetime
 
 import app.api.v1.users.services as user_services
 import app.api.v1.products.services as product_services

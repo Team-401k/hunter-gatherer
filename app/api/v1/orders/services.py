@@ -231,7 +231,7 @@ def create_product_order_and_upsert_users(
         new_order.skus.append(line_item.sku)
 
         #get the product associated with the sku for thisi order
-        product = product_services.get_product_by_sku(session, new_order.sku)
+        product = product_services.get_product_by_sku(session, line_item.sku)
 
         #check if is a membership, because then have to do logic for filling in date fields
         if (product.description[0:10].lower() == "membership"):

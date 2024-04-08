@@ -5,7 +5,12 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
+from app.api.v1.products.models import Product
+
+import datetime
+
 import app.api.v1.users.services as user_services
+import app.api.v1.products.services as product_services
 from app.api.v1.external_apis.pp_api import PayPalAPI
 from app.api.v1.external_apis.schemas import (
     Document,
@@ -225,4 +230,31 @@ def create_product_order_and_upsert_users(
         # add sku to order
         new_order.skus.append(line_item.sku)
 
+        #get the product associated with the sku for thisi order
+        product = product_services.get_product_by_sku
+
+        #check if is a membership, because then have to do logic for filling in date fields
+        if (product.description[0:10].lower() == "membership"):
+            fill_in_membership_dates(new_order)
+
     return new_order
+
+def fill_in_membership_dates(order: Order):
+    cutoff = datetime(year=2023, month=8, day=31, hour=23, minute=59, second=59)
+    if order.date > cutoff:
+        order.is_member = True
+
+    order.first_joined = order.date
+
+    if order.date.month > 8:
+        order.date_expired = datetime(year=order.date.year + 1, month=8, day=31, hour=23, minute=59, second=59)
+    else:
+        order.date_expired = datetime(year=order.date.year, month=8, day=31, hour=23, minute=59, second=59)
+    
+    
+
+
+
+
+
+

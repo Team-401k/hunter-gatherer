@@ -25,3 +25,8 @@ def get_products_from_api() -> List[InventoryItem]:
 def get_existing_product_skus(session: Session) -> List[str]:
     skus = session.query(Product.sku.distinct().label("sku")).all()
     return set([sku.sku for sku in skus])
+
+def get_product_by_sku(session: Session, sku: str) -> Product:
+    return session.query(Product).filter(Product.sku == sku).first()
+
+

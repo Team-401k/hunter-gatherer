@@ -17,16 +17,25 @@ router = APIRouter()
 def ingest_sqsp_initial_orders(session: Session = Depends(db)):
     has_next_page = True
     cursor = None
+    tracking = session.query(Tracking).first()
+    if tracking:
+        cursor = tracking.cursor
     while has_next_page:
         sqsp_transactions: SqspTransactionsResponse = (
             services.get_transactions_from_api(cursor=cursor)
         )
 
-        for transaction in tqdm(sqsp_transactions.documents):
+        for transaction in sqsp_transactions.documents:
+            existing_transaction = (
+                session.query(Order)
+                .filter(Order.sqsp_transaction_id == transaction.id)
+                .first()
+            )
+            if existing_transaction:
+                continue
             try:
                 # create initial order
                 new_order: Order = services.create_initial_order_object(transaction)
-
                 # if no salesOrderId (sqsp_order_id) then it is a donation
                 if not transaction.salesOrderId:
                     # create donation and user object
@@ -48,6 +57,7 @@ def ingest_sqsp_initial_orders(session: Session = Depends(db)):
                 session.add(new_order)
                 session.commit()
             except Exception as e:
+                session.rollback()
                 print(f"Error processing transaction: {transaction.id} - {e}")
                 print(f"Transaction: {transaction.model_dump()}")
                 print(f"current cursor: {cursor}")

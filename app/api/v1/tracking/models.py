@@ -1,7 +1,7 @@
 """DB Models for tracking."""
 
+from sqlalchemy import String
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer
 
 from app.database import Base
 
@@ -11,4 +11,4 @@ class Tracking(Base):
 
     __tablename__ = "tracking"
 
-    current_cursor = Column(Integer, primary_key=True)
+    cursor = Column(String, primary_key=True)

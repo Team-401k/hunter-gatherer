@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 from app.api.v1.users.models import User
 
 
-def get_user_by_email(session: Session, email: str):
-    return session.query(User).filter(User.email == email).first()
+def get_user_by_pk(session: Session, name: str, email: str):
+    return session.query(User).filter(User.pk == f"{name}_{email}").first()
 
 
 def create_user(
@@ -21,6 +21,7 @@ def create_user(
     emergency_contact_phone: Optional[str] = None,
 ):
     new_user = User(
+        pk=f"{name}_{email}",
         email=email,
         name=name,
         address=address,
@@ -40,7 +41,7 @@ def upsert_user(
     emergency_contact: Optional[str] = None,
     emergency_contact_phone: Optional[str] = None,
 ):
-    user = get_user_by_email(session, email)
+    user = get_user_by_pk(session, name, email)
     if user:
         if not user.name and name:
             user.name = name

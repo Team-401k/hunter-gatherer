@@ -26,14 +26,14 @@ class Order(Base):
     )  # Assuming users table with email as primary key
     amount = Column(Float, nullable=False)
     date = Column(DateTime, nullable=False)
-    sku = Column(String, ForeignKey("products.sku"), nullable=False)
+    skus = Column(ARRAY(String), nullable=False)
     # payment_method = Column(String)  # Enum? either STRIPE or PAYPAL
     payment_platform = Column(Enum(PaymentPlatform), nullable=False)
     fee = Column(Float, default=0.0)
     external_transaction_id = Column(String, nullable=False)
 
     def __repr__(self):
-        return f"<Order {self.purchase_id}>"
+        return f"<Order {self.sqsp_transaction_id}>"
 
     # def __init__(
     #     self,

@@ -11,4 +11,4 @@ class Tracking(Base):
 
     __tablename__ = "tracking"
 
-    cursor = Column(String, primary_key=True)
+    cursor = Column(String, nullable=False, unique=True, primary_key=True)

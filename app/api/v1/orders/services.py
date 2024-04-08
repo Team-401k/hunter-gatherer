@@ -134,6 +134,7 @@ def create_initial_order_object(transaction: Document):
         user_emails=[],  # need to add user
         amount=transaction.total.value,
         date=transaction.createdOn,
+        skus=[],
         # add sku from line items later
         payment_platform=transaction.payments[0].provider,
         fee=transaction.total.value - transaction.totalNetPayment.value,
@@ -149,20 +150,21 @@ def create_donation_order_and_upsert_user(
     new_order: Order,
     transaction: Document,
 ) -> Order:
-    new_order.sku = "SQDONATION"
+    new_order.skus.append("SQDONATION")
     email = transaction.customerEmail.lower()
-    user = user_services.get_user_by_email(session, email)
+    profile: List[Profile] = get_profile(
+        email,
+    ).profiles
+    name = ""
+    address = ""
+    phone = ""
+    if profile:
+        name, address, phone = parse_profile(profile[0])
+    else:
+        print(transaction.customerEmail)
+    pk = name + '_' + email
+    user = user_services.get_user_by_pk(session, pk)
     if not user:
-        profile: List[Profile] = get_profile(
-            email,
-        ).profiles
-        name = ""
-        address = ""
-        phone = ""
-        if profile:
-            name, address, phone = parse_profile(profile[0])
-        else:
-            print(transaction.customerEmail)
         user = user_services.create_user(
             session,
             email,
@@ -170,7 +172,7 @@ def create_donation_order_and_upsert_user(
             address,
             phone,
         )
-    new_order.user_emails.append(user.email)
+    new_order.user_emails.append(user.pk)
 
     return new_order
 
@@ -221,6 +223,6 @@ def create_product_order_and_upsert_users(
         # associate user with order
         new_order.user_emails.append(user.email)
         # add sku to order
-        new_order.sku = line_item.sku
+        new_order.skus.append(line_item.sku)
 
     return new_order

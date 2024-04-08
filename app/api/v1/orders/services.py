@@ -240,16 +240,16 @@ def create_product_order_and_upsert_users(
     return new_order
 
 def fill_in_membership_dates(order: Order):
-    cutoff = datetime(year=2023, month=8, day=31, hour=23, minute=59, second=59)
+    cutoff = datetime(year=2023, month=8, day=31)
     if order.date > cutoff:
         order.is_member = True
 
     order.first_joined = order.date
 
     if order.date.month > 8:
-        order.date_expired = datetime(year=order.date.year + 1, month=8, day=31, hour=23, minute=59, second=59)
+        order.date_expired = datetime(year=order.date.year + 1, month=8, day=31)
     else:
-        order.date_expired = datetime(year=order.date.year, month=8, day=31, hour=23, minute=59, second=59)
+        order.date_expired = datetime(year=order.date.year, month=8, day=31)
     
     
 

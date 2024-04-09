@@ -1,16 +1,13 @@
 """Services for orders."""
 
 import enum
+from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from app.api.v1.products.models import Product
-
-from datetime import datetime
-
-import app.api.v1.users.services as user_services
 import app.api.v1.products.services as product_services
+import app.api.v1.users.services as user_services
 from app.api.v1.external_apis.pp_api import PayPalAPI
 from app.api.v1.external_apis.schemas import (
     Document,
@@ -167,7 +164,7 @@ def create_donation_order_and_upsert_user(
         name, address, phone = parse_profile(profile[0])
     else:
         print(transaction.customerEmail)
-    pk = name + '_' + email
+    pk = name + "_" + email
     user = user_services.get_user_by_pk(session, pk)
     if not user:
         user = user_services.create_user(
@@ -218,18 +215,19 @@ def create_product_order_and_upsert_users(
         is_member = False
         date_expired = None
 
-        #get the product associated with the sku for this order
+        # get the product associated with the sku for this order
         product = product_services.get_product_by_sku(session, line_item.sku)
 
-        #check if is a membership, because then have to fill in date fields
-        if (product.description[0:10].lower() == "membership"):
+        # check if is a membership, because then have to fill in date fields
+        if "membership" in product.description.lower():
             today = datetime.now()
             cutoff = None
 
-            #today is after august, so active membership is checked against this year's august
-            if today > 8:
+            # today is after august, so active membership is checked against this year's august
+            if today.month > 8:
                 cutoff = datetime(today.year, month=8, day=31)
-            else: #today is august or before, so check against last year's august
+            # today is august or before, so check against last year's august
+            else:
                 cutoff = datetime(today.year - 1, month=8, day=31)
 
             order_date = new_order.date
@@ -243,16 +241,16 @@ def create_product_order_and_upsert_users(
                 date_expired = datetime(year=order_date.year, month=8, day=31)
 
         user = user_services.upsert_user(
-            session = session,
-            email = email,
-            name = name,
-            address = address,
-            phone = phone,
-            emergency_contact = emergency_contact,
-            emergency_contact_phone = emergency_contact_phone,
-            is_member = is_member,
-            date_renewed = new_order.date,
-            date_expired = date_expired,
+            session=session,
+            email=email,
+            name=name,
+            address=address,
+            phone=phone,
+            emergency_contact=emergency_contact,
+            emergency_contact_phone=emergency_contact_phone,
+            is_member=is_member,
+            date_renewed=new_order.date,
+            date_expired=date_expired,
         )
 
         # associate user with order
@@ -261,6 +259,7 @@ def create_product_order_and_upsert_users(
         new_order.skus.append(line_item.sku)
 
     return new_order
+
 
 # def fill_in_membership_dates(order: Order):
 #     cutoff = datetime(year=2023, month=8, day=31)
@@ -273,11 +272,3 @@ def create_product_order_and_upsert_users(
 #         order.date_expired = datetime(year=order.date.year + 1, month=8, day=31)
 #     else:
 #         order.date_expired = datetime(year=order.date.year, month=8, day=31)
-    
-    
-
-
-
-
-
-

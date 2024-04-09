@@ -1,6 +1,6 @@
 """API Route handlers for orders."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from tqdm import tqdm
 
@@ -69,7 +69,10 @@ def ingest_sqsp_initial_orders(session: Session = Depends(db)):
                     new_cursor = Tracking(cursor=cursor if cursor else "INITIAL")
                     session.add(new_cursor)
                     session.commit()
-                break
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Error processing transaction: {transaction.id}: {e}",
+                )
 
         has_next_page = sqsp_transactions.pagination.hasNextPage
         cursor = sqsp_transactions.pagination.nextPageCursor

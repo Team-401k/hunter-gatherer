@@ -13,9 +13,10 @@ class User(Base):
     phone = Column(String)
     emergency_contact = Column(String)
     emergency_contact_phone = Column(String)
-    date_joined = Column(DateTime)
     date_renewed = Column(DateTime)
-    is_member = Column(Boolean)
+    is_member = Column(Boolean, default = False)
+    first_joined = Column(DateTime)
+    date_expired = Column(DateTime)
 
     def __repr__(self):
         return f"<User {self.pk}>"

@@ -7,7 +7,6 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import String
 from sqlalchemy.sql.sqltypes import Boolean
-from dateutil import relativedelta
 
 from app.database import Base
 
@@ -39,10 +38,6 @@ class Order(Base):
     payment_platform = Column(Enum(PaymentPlatform), nullable=False)
     fee = Column(Float, default=0.0)
     external_transaction_id = Column(String, nullable=False)
-    is_member = Column(Boolean, default = False)
-    first_joined = Column(DateTime)
-    date_expired = Column(DateTime)
-
 
     def __repr__(self):
         return f"<Order {self.sqsp_transaction_id}>"

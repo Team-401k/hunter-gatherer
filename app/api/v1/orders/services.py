@@ -215,14 +215,44 @@ def create_product_order_and_upsert_users(
 
         address = address_line + ", " + city + ", " + state + " " + postal_code
 
+        is_member = False
+        date_expired = None
+
+        #get the product associated with the sku for this order
+        product = product_services.get_product_by_sku(session, line_item.sku)
+
+        #check if is a membership, because then have to fill in date fields
+        if (product.description[0:10].lower() == "membership"):
+            today = datetime.now()
+            cutoff = None
+
+            #today is after august, so active membership is checked against this year's august
+            if today > 8:
+                cutoff = datetime(today.year, month=8, day=31)
+            else: #today is august or before, so check against last year's august
+                cutoff = datetime(today.year - 1, month=8, day=31)
+
+            order_date = new_order.date
+
+            if order_date > cutoff:
+                is_member = True
+
+            if order_date.month > 8:
+                date_expired = datetime(year=order_date.year + 1, month=8, day=31)
+            else:
+                date_expired = datetime(year=order_date.year, month=8, day=31)
+
         user = user_services.upsert_user(
-            session,
-            email,
-            name,
-            address,
-            phone,
-            emergency_contact,
-            emergency_contact_phone,
+            session = session,
+            email = email,
+            name = name,
+            address = address,
+            phone = phone,
+            emergency_contact = emergency_contact,
+            emergency_contact_phone = emergency_contact_phone,
+            is_member = is_member,
+            date_renewed = new_order.date,
+            date_expired = date_expired,
         )
 
         # associate user with order
@@ -230,26 +260,19 @@ def create_product_order_and_upsert_users(
         # add sku to order
         new_order.skus.append(line_item.sku)
 
-        #get the product associated with the sku for thisi order
-        product = product_services.get_product_by_sku(session, line_item.sku)
-
-        #check if is a membership, because then have to do logic for filling in date fields
-        if (product.description[0:10].lower() == "membership"):
-            fill_in_membership_dates(new_order)
-
     return new_order
 
-def fill_in_membership_dates(order: Order):
-    cutoff = datetime(year=2023, month=8, day=31)
-    if order.date > cutoff:
-        order.is_member = True
+# def fill_in_membership_dates(order: Order):
+#     cutoff = datetime(year=2023, month=8, day=31)
+#     if order.date > cutoff:
+#         order.is_member = True
 
-    order.first_joined = order.date
+#     order.first_joined = order.date
 
-    if order.date.month > 8:
-        order.date_expired = datetime(year=order.date.year + 1, month=8, day=31)
-    else:
-        order.date_expired = datetime(year=order.date.year, month=8, day=31)
+#     if order.date.month > 8:
+#         order.date_expired = datetime(year=order.date.year + 1, month=8, day=31)
+#     else:
+#         order.date_expired = datetime(year=order.date.year, month=8, day=31)
     
     
 

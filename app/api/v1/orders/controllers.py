@@ -19,7 +19,7 @@ def ingest_sqsp_initial_orders(session: Session = Depends(db)):
     cursor = None
     tracking = session.query(Tracking).first()
     if tracking:
-        cursor = tracking.cursor
+        cursor = tracking.cursor if tracking.cursor != "INITIAL" else None
     while has_next_page:
         sqsp_transactions: SqspTransactionsResponse = (
             services.get_transactions_from_api(cursor=cursor)
@@ -66,7 +66,7 @@ def ingest_sqsp_initial_orders(session: Session = Depends(db)):
                     current_cursor.cursor = cursor
                     session.commit()
                 else:
-                    new_cursor = Tracking(cursor=cursor)
+                    new_cursor = Tracking(cursor=cursor if cursor else "INITIAL")
                     session.add(new_cursor)
                     session.commit()
                 break

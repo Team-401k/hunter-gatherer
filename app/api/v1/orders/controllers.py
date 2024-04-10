@@ -63,7 +63,7 @@ def ingest_sqsp_initial_orders(session: Session = Depends(db)):
                 print(f"current cursor: {cursor}")
                 current_cursor = session.query(Tracking).first()
                 if current_cursor:
-                    current_cursor.cursor = cursor
+                    current_cursor.cursor = cursor if cursor else "INITIAL"
                     session.commit()
                 else:
                     new_cursor = Tracking(cursor=cursor if cursor else "INITIAL")

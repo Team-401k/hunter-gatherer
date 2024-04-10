@@ -1,7 +1,7 @@
 """Services for orders."""
 
 import enum
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
@@ -99,7 +99,7 @@ def parse_customizations(customizations):
     # elif name, nothing to do
 
     return (
-        name.replace("\n", " "),
+        name.replace("\n", " ").title(),
         phone,
         email.lower(),
         address_line,
@@ -127,7 +127,7 @@ def parse_profile(profile: Profile):
     )
     phone = profile.address.phone
 
-    return name.replace("\n", " "), address, phone
+    return name.replace("\n", " ").title(), address, phone
 
 
 def create_initial_order_object(transaction: Document):
@@ -164,8 +164,7 @@ def create_donation_order_and_upsert_user(
         name, address, phone = parse_profile(profile[0])
     else:
         print(transaction.customerEmail)
-    pk = name + "_" + email
-    user = user_services.get_user_by_pk(session, pk)
+    user = user_services.get_user_by_pk(session, name, email)
     if not user:
         user = user_services.create_user(
             session,
@@ -225,10 +224,10 @@ def create_product_order_and_upsert_users(
 
             # today is after august, so active membership is checked against this year's august
             if today.month > 8:
-                cutoff = datetime(today.year, month=8, day=31)
+                cutoff = datetime(today.year, month=8, day=31, tzinfo=UTC)
             # today is august or before, so check against last year's august
             else:
-                cutoff = datetime(today.year - 1, month=8, day=31)
+                cutoff = datetime(today.year - 1, month=8, day=31, tzinfo=UTC)
 
             order_date = new_order.date
 

@@ -213,6 +213,7 @@ def create_product_order_and_upsert_users(
 
         is_member = False
         date_expired = None
+        date_renewed = None
 
         # get the product associated with the sku for this order
         product = product_services.get_product_by_sku(session, line_item.sku)
@@ -221,6 +222,7 @@ def create_product_order_and_upsert_users(
         if "membership" in product.description.lower():
             today = datetime.now()
             cutoff = None
+            date_renewed = new_order.date
 
             # today is after august, so active membership is checked against this year's august
             if today.month > 8:
@@ -248,7 +250,7 @@ def create_product_order_and_upsert_users(
             emergency_contact=emergency_contact,
             emergency_contact_phone=emergency_contact_phone,
             is_member=is_member,
-            date_renewed=new_order.date,
+            date_renewed=date_renewed,
             date_expired=date_expired,
         )
 

@@ -3,7 +3,6 @@ import logging
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from tabulate import tabulate
-from decimal import Decimal 
 
 from app.database import db
 
@@ -126,7 +125,6 @@ GROUP BY year, month;
 
 def execute_sql_queries():
     # Start a database session
-    session = db()
     db_session = next(db())
     result = db_session.execute(text(sql_commands)).fetchall()
 

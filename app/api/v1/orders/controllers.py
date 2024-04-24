@@ -7,10 +7,29 @@ from tqdm import tqdm
 from app.api.v1.external_apis.schemas import SqspTransactionsResponse
 from app.api.v1.orders import services
 from app.api.v1.orders.models import Order
+from app.api.v1.products.controllers import ingest_sqsp_products
 from app.api.v1.tracking.models import Tracking
 from app.database import db
+from fastapi_utilities import repeat_every
 
 router = APIRouter()
+
+@router.on_event('startup')
+@repeat_every(seconds=10)
+def test():
+    print("running")
+
+@router.on_event('startup')
+@repeat_every(seconds=3600)
+def call_ingestion():
+    print("ingesting products")
+    ingest_sqsp_products()
+    print("ingesting orders")
+    ingest_sqsp_orders()
+    
+
+
+    
 
 
 @router.post("/sqsp_initial_ingestion")
@@ -80,35 +99,57 @@ def ingest_sqsp_initial_orders(session: Session = Depends(db)):
 
 @router.post("/sqsp_daily_ingestion")
 def ingest_sqsp_orders(session: Session = Depends(db)):
-    sqsp_transactions: SqspTransactionsResponse = services.get_transactions_from_api(
-        # "2024-02-16T00:00:00Z",
-        # "2024-03-10T23:59:59Z",
-    )
+    has_next_page = True
+    cursor = None
+    while has_next_page:
+        sqsp_transactions: SqspTransactionsResponse = (
+            services.get_transactions_from_api(cursor=cursor)
+        )
 
-    for transaction in tqdm(sqsp_transactions.documents):
-        # create initial order
-        new_order: Order = services.create_initial_order_object(transaction)
-
-        # if no salesOrderId (sqsp_order_id) then it is a donation
-        if not transaction.salesOrderId:
-            # create donation and user object
-            new_order = services.create_donation_order_and_upsert_user(
-                session,
-                new_order,
-                transaction,
+        for transaction in sqsp_transactions.documents:
+            existing_transaction = (
+                session.query(Order)
+                .filter(Order.sqsp_transaction_id == transaction.id)
+                .first()
             )
-        else:
-            # create an order + users from order details
-            order_detail = services.get_order_detail(transaction.salesOrderId)
-            new_order = services.create_product_order_and_upsert_users(
-                session,
-                new_order,
-                transaction,
-                order_detail,
-            )
+            if existing_transaction:
+                continue
+            try:
+                # create initial order
+                new_order: Order = services.create_initial_order_object(transaction)
+                # if no salesOrderId (sqsp_order_id) then it is a donation
+                if not transaction.salesOrderId:
+                    # create donation and user object
+                    new_order = services.create_donation_order_and_upsert_user(
+                        session,
+                        new_order,
+                        transaction,
+                    )
+                else:
+                    # create an order + users from order details
+                    order_detail = services.get_order_detail(transaction.salesOrderId)
+                    new_order = services.create_product_order_and_upsert_users(
+                        session,
+                        new_order,
+                        transaction,
+                        order_detail,
+                    )
 
-        session.add(new_order)
-        session.commit()
+                session.add(new_order)
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                print(f"Error processing transaction: {transaction.id} - {e}")
+                print(f"Transaction: {transaction.model_dump()}")
+                print(f"current cursor: {cursor}")
+                break
+                # raise HTTPException(
+                #     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                #     detail=f"Error processing transaction: {transaction.id}: {e}",
+                # )
+
+        has_next_page = sqsp_transactions.pagination.hasNextPage
+        cursor = sqsp_transactions.pagination.nextPageCursor
 
 
 # @router.post("/sqsp_ingestion")

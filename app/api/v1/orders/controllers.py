@@ -1,8 +1,8 @@
 """API Route handlers for orders."""
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_utilities import repeat_every
 from sqlalchemy.orm import Session
-from tqdm import tqdm
 
 from app.api.v1.external_apis.schemas import SqspTransactionsResponse
 from app.api.v1.orders import services
@@ -10,7 +10,6 @@ from app.api.v1.orders.models import Order
 from app.api.v1.products.controllers import ingest_sqsp_products
 from app.api.v1.tracking.models import Tracking
 from app.database import db
-from fastapi_utilities import repeat_every
 
 router = APIRouter()
 
@@ -19,18 +18,19 @@ router = APIRouter()
 # def test():
 #     print("running")
 
-@router.on_event('startup')
+
+@router.on_event("startup")
 @repeat_every(seconds=3600)
 def call_ingestion():
+    session = next(db())
     print("ingesting products")
-    ingest_sqsp_products()
+    ingest_sqsp_products(session)
     print("ingesting orders")
-    ingest_sqsp_orders()
+    ingest_sqsp_orders(session)
     # print("ingersting ")
     print("ingestion complete")
-    
 
-    
+
 @router.post("/")
 def print_test():
     print("hello world")

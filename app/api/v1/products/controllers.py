@@ -22,5 +22,6 @@ def ingest_sqsp_products(session: Session = Depends(db)):
             description=item.descriptor,
         )
 
+        # print(f"Adding product {new_product.sku} to the database")
         session.add(new_product)
         session.commit()

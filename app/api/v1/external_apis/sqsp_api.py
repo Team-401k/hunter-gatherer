@@ -59,7 +59,9 @@ class SquareSpaceAPI(BaseApi):
 
     def get_order_detail(self, order_id):
         # Make the request to the SquareSpace orders endpoint
+        print("ahh this is prob the issue huh", order_id)
         response = self.make_request(f"/1.0/commerce/orders/{order_id}", "GET")
+        print("was this is eht issue?", response)
         return response
 
     def get_transactions(
@@ -156,7 +158,9 @@ class SquareSpaceAPI(BaseApi):
         return self.parse_products(data)
 
     def search_parse_order_detail(self, order_id) -> SqspOrderDetailResponse:
+        print("begin search parse order detail", order_id)
         data = self.get_order_detail(order_id)
+        print("in search parse order detail", data)
         return self.parse_order_detail(data)
 
     def search_parse_profile(self, email) -> SqspProfileResponse:

@@ -14,10 +14,10 @@ from fastapi_utilities import repeat_every
 
 router = APIRouter()
 
-@router.on_event('startup')
-@repeat_every(seconds=10)
-def test():
-    print("running")
+# @router.on_event('startup')
+# @repeat_every(seconds=10)
+# def test():
+#     print("running")
 
 @router.on_event('startup')
 @repeat_every(seconds=3600)
@@ -26,16 +26,21 @@ def call_ingestion():
     ingest_sqsp_products()
     print("ingesting orders")
     ingest_sqsp_orders()
+    # print("ingersting ")
+    print("ingestion complete")
     
 
-
     
+@router.post("/")
+def print_test():
+    print("hello world")
 
 
 @router.post("/sqsp_initial_ingestion")
 def ingest_sqsp_initial_orders(session: Session = Depends(db)):
     has_next_page = True
     cursor = None
+    print("ingesting initial orders")
     tracking = session.query(Tracking).first()
     if tracking:
         cursor = tracking.cursor if tracking.cursor != "INITIAL" else None
@@ -43,7 +48,7 @@ def ingest_sqsp_initial_orders(session: Session = Depends(db)):
         sqsp_transactions: SqspTransactionsResponse = (
             services.get_transactions_from_api(cursor=cursor)
         )
-
+        print("ingesting initial orders loop")
         for transaction in sqsp_transactions.documents:
             existing_transaction = (
                 session.query(Order)
@@ -53,9 +58,12 @@ def ingest_sqsp_initial_orders(session: Session = Depends(db)):
             if existing_transaction:
                 continue
             try:
+                print("creating order")
+
                 # create initial order
                 new_order: Order = services.create_initial_order_object(transaction)
                 # if no salesOrderId (sqsp_order_id) then it is a donation
+                print("handling donation")
                 if not transaction.salesOrderId:
                     # create donation and user object
                     new_order = services.create_donation_order_and_upsert_user(
@@ -63,16 +71,20 @@ def ingest_sqsp_initial_orders(session: Session = Depends(db)):
                         new_order,
                         transaction,
                     )
+                    print("handling donation in if statement")
                 else:
+                    print("handling order and user creation")
                     # create an order + users from order details
                     order_detail = services.get_order_detail(transaction.salesOrderId)
+                    print("order detail retrieved")
                     new_order = services.create_product_order_and_upsert_users(
                         session,
                         new_order,
                         transaction,
                         order_detail,
                     )
-
+                    print(" order made")
+                print("adding to session")
                 session.add(new_order)
                 session.commit()
             except Exception as e:

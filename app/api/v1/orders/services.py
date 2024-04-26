@@ -42,6 +42,7 @@ def get_orders(start_date: str, end_date: str) -> OrdersResponse:
 
 
 def get_order_detail(order_id: str) -> SqspOrderDetailResponse:
+    print("here in get order details")
     return sqsp_api.search_parse_order_detail(order_id)
 
 

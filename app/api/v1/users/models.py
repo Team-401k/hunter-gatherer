@@ -17,6 +17,7 @@ class User(Base):
     is_member = Column(Boolean, default = False)
     first_joined = Column(DateTime)
     date_expired = Column(DateTime)
+    profile_pic = Column(String)
 
     def __repr__(self):
         return f"<User {self.pk}>"

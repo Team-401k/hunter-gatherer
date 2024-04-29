@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_utilities import repeat_every
 from sqlalchemy.orm import Session
 
+from app.api.v1.analytics.controllers import ingest_analytics
 from app.api.v1.external_apis.schemas import SqspTransactionsResponse
 from app.api.v1.orders import services
 from app.api.v1.orders.models import Order
@@ -27,6 +28,8 @@ def call_ingestion():
     ingest_sqsp_products(session)
     print("ingesting orders")
     ingest_sqsp_orders(session)
+    print("ingesting analytics")
+    ingest_analytics(session)
     # print("ingersting ")
     print("ingestion complete")
 

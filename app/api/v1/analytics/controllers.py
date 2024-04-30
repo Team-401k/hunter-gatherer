@@ -2,11 +2,21 @@
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from fastapi_utilities import repeat_every
 
 from app.api.v1.analytics import services
 from app.database import db
 
 router = APIRouter()
+
+@router.on_event("startup")
+@repeat_every(seconds=3600)
+def call_analytics_ingestion():
+    session = next(db())
+    print("ingesting analytics")
+    ingest_analytics(session)
+    print("analytics ingestion complete")
+
 
 
 @router.post("/analytics")

@@ -10,6 +10,7 @@ from app.database import db
 router = APIRouter()
 
 ####  Do the following lines need to be uncommented??
+#     Added comment re this module not running after students finished the project.
 
 # @router.on_event("startup")
 # @repeat_every(seconds=3600)

@@ -9,6 +9,8 @@ from app.database import db
 
 router = APIRouter()
 
+####  Do the following lines need to be uncommented??
+
 # @router.on_event("startup")
 # @repeat_every(seconds=3600)
 # def call_analytics_ingestion():
